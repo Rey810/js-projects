@@ -1,22 +1,38 @@
-//example books
-let book1 = new Book("book1", "author1", 20, true);
-let book2 = new Book("book2", "author2", 20, true);
-let book3 = new Book("book3", "author3", 20, true);
-let book4 = new Book("book4", "author4", 20, true);
-let book5 = new Book("book5", "author5", 20, true);
-let book6 = new Book("book6", "author6", 20, true);
+let myLibrary = [];
 
-let myLibrary = [book1, book2, book3, book4, book5, book6];
+if (localStorage.getItem('library')) {
+    // if there is a local storage, parse it into myLibrary
+    myLibrary = JSON.parse(localStorage.getItem('library'));
+    // redefines the prototype of each book as metadata is lost with JSON.stringify
+    myLibrary.forEach(obj => {
+        return Object.setPrototypeOf(obj, Book.prototype);
+    })
+} 
+
+Book.prototype.info = function () {
+    return `${this.title} by ${this.author}, ${this.pages}, ${this.haveRead}`;
+}
+
+Book.prototype.toggleReadStatus = function () {
+    if (this.haveRead === 'Yes') {
+        return this.haveRead = 'No';
+    } else {
+        return this.haveRead = 'Yes';
+    }
+}
+
+function Book(title, author, pages, haveRead) {
+    this.title = title,
+        this.author = author,
+        this.pages = pages,
+        this.haveRead = haveRead
+}
+
 
 let booksDisplay = document.getElementById('books-display');
 let toggleButton = document.getElementById('toggleButton');
 let addBookButton = document.getElementById('add-book');
-let removeButtons = document.querySelectorAll('.remove-button');
 
-let buttonArray = [...removeButtons]
-buttonArray.forEach((button) => {
-    button.addEventListener('click', () => console.log("Inside event listener"))
-})
 
 toggleButton.addEventListener("click", formToggle);
 addBookButton.addEventListener("click", addBookShowLibrary);
@@ -27,44 +43,70 @@ function addBookShowLibrary(){
     formToggle();
 }
 
-function Book(title, author, pages, haveRead){
-    this.title = title,
-    this.author = author,
-    this.pages = pages,
-    this.haveRead = haveRead,
-    this.info = () => {
-        return `${title} by ${author}, ${pages}, ${haveRead}`
-    }
-}
-
 function addBookToLibrary(){
     //take a users input and add that input (a book) to the myLibrary array
     let newBook = new Book();
     newBook.title = document.getElementById('title').value;
     newBook.author = document.getElementById('author').value;
     newBook.pages = document.getElementById('pages').value;
-    newBook.haveRead = document.getElementById('haveRead').value;
+
+    if (document.getElementById('yes').checked){
+        newBook.haveRead = document.getElementById('yes').value
+    } else {
+        newBook.haveRead = document.getElementById('no').value 
+    }
+    
 
     myLibrary.push(newBook);
+    localStorage.setItem('library', JSON.stringify(myLibrary))
 }
 
 function removeBookFromLibrary(){
-    console.log('test');
-    console.log(`This button is ${this.index}`);
+    let bookToRemove = myLibrary[this.dataset.index];
 
+    //update the array to exclude the bookToRemove
+    myLibrary = myLibrary.filter(book => {
+        return book != bookToRemove;       
+    });
+    
+    localStorage.setItem('library', JSON.stringify(myLibrary))
+    renderBooks();
+}
+
+function changeReadStatus(){
+    let book = myLibrary[this.dataset.index].toggleReadStatus();
+    renderBooks();
 }
 
 function renderBooks(){
-    //allows the innerHTML to be reset according to the current 
-    // myLibrary array
     booksDisplay.innerHTML = '';
-    let output = '';
     myLibrary.forEach((book) => {
-        output += `<div class='book-card'>${book.title}</div>
-                    <button class='remove-button' data-index=${myLibrary.indexOf(book)}>
-                        Remove</button>`
+        booksDisplay.innerHTML += `<div class='book-card'>${book.title}</div>
+                                    Did I read it?
+                                    <button class='read-status' 
+                                    data-index=${myLibrary.indexOf(book)}>
+                                    ${book.haveRead}
+                                    </button>
+                                    <button class='remove-button' 
+                                    data-index=${myLibrary.indexOf(book)}>
+                                    Remove
+                                    </button>`
     })
-    booksDisplay.innerHTML += output;
+
+    //adds event listeners to each book's remove button
+    let removeButtons = document.querySelectorAll('.remove-button');
+    [...removeButtons].forEach(button => {
+        button.addEventListener('click', removeBookFromLibrary);
+    })
+
+    //adds event listeners to each book's haveRead button
+    let haveReadButtons = document.querySelectorAll('.read-status');
+    [...haveReadButtons].forEach(button => {
+        button.addEventListener('click', changeReadStatus);
+    })
+
+    localStorage.setItem('library', JSON.stringify(myLibrary))
+
 }
 
 function formToggle(){
@@ -80,4 +122,7 @@ function formToggle(){
     }
 }
 
+                                    
 renderBooks();
+
+
