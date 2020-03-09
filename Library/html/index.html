@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>A Library</title>
+    <link rel="stylesheet" href="../css/stylesheet.css">
+</head>
+<body> 
+    <button id='toggleButton'>New Book</button>
+    <div id='form-container' style='display: none;'>
+        <form>
+            <label for='title'>Title</label><br>
+            <input type='text' id='title'><br>
+            <label for='author'>Author</label><br>
+            <input type='text' id='author'><br>
+            <label for='pages'># of Pages</label><br>
+            <input type='text' id='pages'><br>
+            <label for='haveRead'>Have you read it yet?</label><br>
+            <input type='radio' value='yes' name='haveRead' id='haveRead'>Yes</input>
+            <input type='radio' value='no' name='haveRead' id='haveRead'>No</input><br>
+        </form>
+        <button id='add-book'>Add Book to Library</button>
+    </div>
+
+    <div id='books-display'></div>
+    <script src="../js/book.js"></script>
+</body>
+</html>
